@@ -1,18 +1,21 @@
 package com.selenium4.newfeature;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Uninterruptibles;
-import org.openqa.selenium.By;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.devtools.DevTools;
+import org.openqa.selenium.devtools.v85.network.Network;
+import org.openqa.selenium.devtools.v85.network.model.ConnectionType;
 import org.openqa.selenium.devtools.v85.security.Security;
 import org.testng.annotations.Test;
 
 import java.time.Duration;
 import java.util.HashMap;
+import java.util.Optional;
 
 public class CDP_Test extends BaseTest
 {
-    //Geo location
+    //Geolocation
     @Test
     public void shouldBeAbleToEmulateGeoLocation()
     {
@@ -34,7 +37,14 @@ public class CDP_Test extends BaseTest
     @Test
     public void shouldBeAbleToEmulateNetworkCondition()
     {
+        DevTools devTools = ((ChromeDriver)driver).getDevTools();
+        devTools.createSession();
 
+        devTools.send(Network.enable(Optional.empty(),Optional.empty(),Optional.empty()));
+        devTools.send(Network.emulateNetworkConditions(false,100000,100000,100000, Optional.of(ConnectionType.CELLULAR2G)));
+
+        driver.get("https://facebook.com");
+        Uninterruptibles.sleepUninterruptibly(Duration.ofSeconds(10));
     }
 
     //Device emulation
@@ -56,6 +66,13 @@ public class CDP_Test extends BaseTest
     }
 
     //Capture network requests
+    @Test
+    public void shouldBeAbleToCaptureNetworkRequests()
+    {
+        DevTools devtools = ((ChromeDriver) driver).getDevTools();
+        devtools.send(Network.enable(Optional.empty(),Optional.empty(),Optional.empty()));
+
+    }
 
     //SSL certificate
     @Test
@@ -80,7 +97,14 @@ public class CDP_Test extends BaseTest
     @Test
     public void shouldBeAbleToInterceptNetworkRequest()
     {
+        DevTools devTools = ((ChromeDriver) driver).getDevTools();
+        devTools.createSession();
 
+        devTools.send(Network.enable(Optional.empty(), Optional.empty(),Optional.empty()));
+        devTools.send(Network.setBlockedURLs(ImmutableList.of(".jpg",".png",".jpeg")));
+
+        driver.get("https://amazon.com");
+        Uninterruptibles.sleepUninterruptibly(Duration.ofSeconds(10));
     }
 
 }
